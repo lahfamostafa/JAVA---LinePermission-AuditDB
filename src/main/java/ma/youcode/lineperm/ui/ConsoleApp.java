@@ -1,5 +1,6 @@
 package ma.youcode.lineperm.ui;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import ma.youcode.lineperm.service.FileService;
@@ -45,10 +46,10 @@ public class ConsoleApp{
 
         switch (commandes[0].trim()) {
             case "signup":
-                login();
+                signup();
                 break;
             case "login":
-                signup();
+                login();
                 break;
             case "help":
                 System.out.println("help");
@@ -67,7 +68,11 @@ public class ConsoleApp{
                     System.out.println("Tu dois se connecter d'abord");
                     break;
                 }
-                fs.lsCommande();
+                try {
+                    fs.lsCommande();
+                } catch (SQLException e) {
+                    e.getMessage();
+                }
                 break;
             case "chmod":
                 if (utilisateurConnecte == null) {
@@ -78,8 +83,12 @@ public class ConsoleApp{
                     System.out.println("vous devez entrer le fihcier");
                     break;
                 }
-                fs.chmodCommande(commandes[2].trim(), utilisateurConnecte, commandes[1].trim());
-                break;
+                try {
+                    fs.chmodCommande(commandes[2].trim(), utilisateurConnecte, commandes[1].trim());
+                    break;
+                } catch (SQLException e) {
+                    System.err.println(e.getMessage());
+                }
             case "cat":
                 if (utilisateurConnecte == null) {
                     System.out.println("Tu dois se connecter d'abord");
@@ -89,8 +98,12 @@ public class ConsoleApp{
                     System.out.println("vous devez entrer le fihcier");
                     break;
                 }
-                fs.catCommande(commandes[1].trim(), utilisateurConnecte);
-                break;
+                try {
+                    fs.catCommande(commandes[1].trim(), utilisateurConnecte);
+                    break;
+                } catch (SQLException e) {
+                    System.err.println(e.getMessage());
+                }
             case "nano":
                 if (utilisateurConnecte == null) {
                     System.out.println("Tu dois se connecter d'abord");
@@ -100,8 +113,12 @@ public class ConsoleApp{
                     System.out.println("vous devez entrer le fihcier");
                     break;
                 }
-                fs.nanoCommande(commandes[1].trim(), utilisateurConnecte);
-                break;
+                try{
+                    fs.nanoCommande(commandes[1].trim(), utilisateurConnecte);
+                    break;
+                } catch (SQLException e) {
+                    System.err.println(e.getMessage());
+                }
             case "rm":
                 if (utilisateurConnecte == null) {
                     System.out.println("Tu dois se connecter d'abord");
@@ -111,8 +128,12 @@ public class ConsoleApp{
                     System.out.println("vous devez entrer le fihcier");
                     break;
                 }
-                fs.rmCommande(commandes[1].trim(), utilisateurConnecte);
-                break;
+                try {
+                    fs.rmCommande(commandes[1].trim(), utilisateurConnecte);
+                    break;
+                } catch (SQLException e) {
+                    System.err.println(e.getMessage());
+                }
             case "touch":
                 if (utilisateurConnecte == null) {
                     System.out.println("Tu dois se connecter d'abord");
@@ -150,8 +171,12 @@ public class ConsoleApp{
         System.out.print("password : ");
         String password = scanner.nextLine();
 
-        if (us.login(user, password)) {
-            utilisateurConnecte = user;
+        try {
+            if (us.signup(user, password)) {
+                utilisateurConnecte = user;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur d'accès à la base de données : " +e.getMessage());
         }
         return;
     }
@@ -167,8 +192,12 @@ public class ConsoleApp{
         System.out.print("password : ");
         String password = scanner.nextLine();
 
-        if (us.signup(user, password)) {
-            utilisateurConnecte = user;
+        try {
+            if (us.login(user, password)) {
+                utilisateurConnecte = user;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur d'accès à la base de données : " +e.getMessage());
         }
         return;
     }
