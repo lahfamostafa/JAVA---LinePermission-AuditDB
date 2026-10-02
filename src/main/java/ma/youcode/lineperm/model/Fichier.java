@@ -1,6 +1,8 @@
 package ma.youcode.lineperm.model;
 
 public class Fichier {
+    private int id;
+    private int userId;
     private String proprietaire;
     private String name;
 
@@ -12,9 +14,13 @@ public class Fichier {
     private boolean autherRead = false;
     private boolean autherDelete = false;
 
-    
-    public Fichier(String proprietaire, String name, boolean ownerWrite, boolean ownerRead, boolean ownerDelete,
-            boolean autherWrite, boolean autherRead, boolean autherDelete) {
+    private String content = null;
+
+    public Fichier(){}
+    public Fichier(int id ,int userId ,String proprietaire, String name, boolean ownerWrite, boolean ownerRead, boolean ownerDelete,
+            boolean autherWrite, boolean autherRead, boolean autherDelete , String content) {
+        this.userId = userId;
+        this.id = id;
         this.proprietaire = proprietaire;
         this.name = name;
         this.ownerWrite = ownerWrite;
@@ -23,10 +29,12 @@ public class Fichier {
         this.autherWrite = autherWrite;
         this.autherRead = autherRead;
         this.autherDelete = autherDelete;
+        this.content = content;
     }
 
 
-    public Fichier(String proprietaire, String name) {
+    public Fichier(int userId ,String proprietaire, String name) {
+        this.userId = userId;
         this.proprietaire = proprietaire;
         this.name = name;
     }
@@ -108,6 +116,26 @@ public class Fichier {
             (autherDelete ? "d" : "-");
 
         return ownerPermissions + "|" + autherPermissions;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    public int getUserId() {
+        return userId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
     
 }
