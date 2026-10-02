@@ -1,31 +1,25 @@
 package ma.youcode.lineperm.service;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import org.mindrot.jbcrypt.BCrypt;
+
+import ma.youcode.lineperm.dao.UserDao;
 import ma.youcode.lineperm.model.User;
 
 public class UserService {
 
-    Map <String,User> userMap = new HashMap<>();
-
     Scanner scanner = new Scanner(System.in);
+    UserDao userDao = new UserDao();
 
     public UserService(){
-        loadFile();
     }
 
-    public boolean login(String user, String password){
-        if(userMap.containsKey(user)){
-            User userP = userMap.get(user);
-            if(BCrypt.checkpw(password,userP.getPassword())){
+    public boolean login(String user, String password)throws SQLException{
+        User userFind = userDao.findByUser(user);
+        if(userFind != null){
+            if(BCrypt.checkpw(password,userFind.getPassword())){
                 System.out.println("Vous ete conncte ");
                 return true;
             }
@@ -34,49 +28,19 @@ public class UserService {
         return false;
     }
     
-    
-    public boolean signup(String user , String password){
-        if(userMap.containsKey(user)){
+    public boolean signup(String user , String password) throws SQLException{
+        User userFind = userDao.findByUser(user);
+        if(userFind != null){
             System.out.println("Ce nom d'utilisateur est deja pris !");
             return false;
         }
+        String passwordHashed = BCrypt.hashpw(password, BCrypt.gensalt()) ;
+        User saveUser = new User(user, passwordHashed);
 
-        if(ajouterText(user,password)){
+        if(userDao.save(saveUser)){
             System.out.println("inscription avec succes");
-            loadFile();
+            login(user, password);
             return true;
-        }
-        return false;
-    }
-
-    public void loadFile(){
-        userMap.clear();
-        try(BufferedReader br = new BufferedReader(new FileReader("src/main/java/ma/youcode/lineperm/Users.txt"))){
-            String line;
-            while((line = br.readLine()) != null){
-                String[] identifiants = line.split(":");
-                if(identifiants.length == 2){
-                    String loginFichier = identifiants[0].trim();
-                    String mdpFichier = identifiants[1].trim();
-                    User user = new User(loginFichier, mdpFichier);
-                    userMap.put(loginFichier, user);
-                }
-            }
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-    
-    public boolean ajouterText(String loginSaisi, String mdpSaisi){
-        String passwordhash = BCrypt.hashpw(mdpSaisi, BCrypt.gensalt());
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter("src/main/java/ma/youcode/lineperm/Users.txt" , true))){
-            bw.write(loginSaisi + " : " + passwordhash);
-            bw.newLine();
-            User newUser =new User(loginSaisi,passwordhash);
-            userMap.put(loginSaisi, newUser);
-            return true;
-        }catch(IOException e){
-            e.printStackTrace();
         }
         return false;
     }
